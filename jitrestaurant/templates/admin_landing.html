@@ -1,0 +1,815 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - JIT Restaurant</title>
+    <!-- Debug output -->
+    {% if customer_orders %}
+    <script>
+        console.log("Customer Orders:", {{ customer_orders|tojson }});
+    </script>
+    {% endif %}
+    {% if order_details %}
+    <script>
+        console.log("Order Details:", {{ order_details|tojson }});
+    </script>
+    {% endif %}
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --dark-bg: #121212;
+            --dark-card: rgba(30, 30, 30, 0.85);
+            --dark-surface: rgba(45, 45, 45, 0.9);
+            --text-primary: #ffffff;
+            --text-secondary: #e0e0e0;
+            --accent-color: #FF7043;
+            --accent-dark: #F4511E;
+            --success-color: #4CAF50;
+            --warning-color: #FFC107;
+            --danger-color: #f44336;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            background-color: var(--dark-bg);
+            color: var(--text-primary);
+            min-height: 100vh;
+            background-image: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), 
+                url("{{ url_for('static', filename='images/beachside.jpg') }}");
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+        }
+
+        nav {
+            background-color: rgba(30, 30, 30, 0.95);
+            padding: 1rem 0;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+        }
+
+        .nav-flex-row {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .nav-flex-row li {
+            margin: 0 1rem;
+        }
+
+        .nav-flex-row li a {
+            color: var(--text-primary);
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+        }
+
+        .nav-flex-row li a:hover,
+        .nav-flex-row li a.active {
+            background-color: var(--accent-color);
+            color: white;
+        }
+
+        .admin-header {
+            text-align: center;
+            padding: 8rem 2rem 4rem;
+            background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.3));
+        }
+
+        .admin-header h1 {
+            font-size: 2.5em;
+            margin-bottom: 1rem;
+            color: var(--text-primary);
+        }
+
+        .admin-header p {
+            color: var(--text-secondary);
+            font-size: 1.1em;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .table-section {
+            padding: 2rem;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .table-container {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .section-title {
+            font-size: 1.8em;
+            color: var(--text-primary);
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .section-title i {
+            color: var(--accent-color);
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .data-table th {
+            background: var(--accent-color);
+            color: white;
+            padding: 1rem;
+            text-align: left;
+            font-weight: 500;
+        }
+
+        .data-table td {
+            padding: 1rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--text-secondary);
+        }
+
+        .data-table tbody tr:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .table-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .search-box {
+            padding: 0.5rem 1rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--text-primary);
+            outline: none;
+        }
+
+        .search-box:focus {
+            border-color: var(--accent-color);
+        }
+
+        .add-button {
+            padding: 0.5rem 1rem;
+            background: var(--accent-color);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .add-button:hover {
+            background: var(--accent-dark);
+            transform: translateY(-2px);
+        }
+
+        .status {
+            padding: 0.25rem 0.75rem;
+            border-radius: 15px;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        .status-pending {
+            background: var(--warning-color);
+            color: #000;
+        }
+
+        .status-completed {
+            background: var(--success-color);
+            color: white;
+        }
+
+        .status-cancelled {
+            background: var(--danger-color);
+            color: white;
+        }
+
+        @media (max-width: 768px) {
+            .admin-header {
+                padding: 6rem 1rem 3rem;
+            }
+
+            .admin-header h1 {
+                font-size: 2em;
+            }
+
+            .table-container {
+                padding: 1rem;
+            }
+
+            .data-table th,
+            .data-table td {
+                padding: 0.75rem;
+            }
+
+            .table-actions {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .search-box,
+            .add-button {
+                width: 100%;
+            }
+        }
+
+        .logout-btn {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 10px 20px;
+            background: var(--accent-color);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .logout-btn:hover {
+            background: var(--accent-dark);
+            transform: translateY(-2px);
+        }
+
+        .no-data {
+            text-align: center;
+            padding: 2rem;
+            color: var(--text-secondary);
+            font-style: italic;
+        }
+
+        .error-message {
+            background: var(--danger-color);
+            color: white;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <a href="{{ url_for('logout') }}" class="logout-btn">
+        <i class="fas fa-sign-out-alt"></i>
+        Logout
+    </a>
+
+    <header class="admin-header">
+        <h1>Welcome, Admin {{ admin_name }}</h1>
+        <p>Manage your restaurant's database tables and records</p>
+    </header>
+
+    {% if error %}
+    <div class="error-message">
+        {{ error }}
+    </div>
+    {% endif %}
+
+    <section class="table-section">
+        <!-- Customer Orders -->
+        <div class="table-container">
+            <div class="table-actions">
+                <h2 class="section-title">
+                    <i class="fas fa-shopping-cart"></i>
+                    Customer Orders
+                </h2>
+                <div>
+                    <input type="text" class="search-box" placeholder="Search orders...">
+                </div>
+            </div>
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Order ID</th>
+                        <th>Customer Name</th>
+                        <th>Order Date</th>
+                        <th>Total Amount</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% if customer_orders %}
+                        {% for order in customer_orders %}
+                        <tr>
+                            <td>#{{ order.Order_ID }}</td>
+                            <td>{{ order.Customer_Name if order.Customer_Name else 'N/A' }}</td>
+                            <td>{{ order.Order_Date }}</td>
+                            <td>₹{{ "%.2f"|format(order.Total_Amount) if order.Total_Amount else '0.00' }}</td>
+                            <td>
+                                <select class="status-select" onchange="changeStatus({{ order.Order_ID }}, this.value)">
+                                    {% for status in ['Pending', 'Preparing', 'Ready', 'Served', 'Cancelled'] %}
+                                        <option value="{{ status }}" {% if order.Status == status %}selected{% endif %}>{{ status }}</option>
+                                    {% endfor %}
+                                </select>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    {% else %}
+                        <tr>
+                            <td colspan="5" class="no-data">No orders found</td>
+                        </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Inventory Batches -->
+        <div class="table-container">
+            <div class="table-actions">
+                <h2 class="section-title">
+                    <i class="fas fa-boxes"></i>
+                    Inventory Batches
+                </h2>
+                <div>
+                    <input type="text" class="search-box" placeholder="Search batches...">
+                    <button class="add-button">
+                        <i class="fas fa-plus"></i>
+                        New Batch
+                    </button>
+                </div>
+            </div>
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Batch ID</th>
+                        <th>Item Name</th>
+                        <th>Quantity</th>
+                        <th>Expiry Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% if inventory_batches %}
+                        {% for batch in inventory_batches %}
+                        <tr>
+                            <td>#{{ batch.Batch_ID }}</td>
+                            <td>{{ batch.Item_Name }}</td>
+                            <td>{{ batch.Quantity }}</td>
+                            <td>{{ batch.Expiry_Date.strftime('%Y-%m-%d') }}</td>
+                        </tr>
+                        {% endfor %}
+                    {% else %}
+                        <tr>
+                            <td colspan="4" class="no-data">No batches found</td>
+                        </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Inventory Items -->
+        <div class="table-container">
+            <div class="table-actions">
+                <h2 class="section-title">
+                    <i class="fas fa-box"></i>
+                    Inventory Items
+                </h2>
+                <div>
+                    <input type="text" class="search-box" placeholder="Search items...">
+                    <button class="add-button">
+                        <i class="fas fa-plus"></i>
+                        New Item
+                    </button>
+                </div>
+            </div>
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Item ID</th>
+                        <th>Name</th>
+                        <th>Quantity</th>
+                        <th>Unit</th>
+                        <th>Reorder Level</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% if inventory_items %}
+                        {% for item in inventory_items %}
+                        <tr>
+                            <td>#{{ item.Item_ID }}</td>
+                            <td>{{ item.Name }}</td>
+                            <td>{{ item.Quantity }}</td>
+                            <td>{{ item.Unit }}</td>
+                            <td>{{ item.Reorder_Level }}</td>
+                        </tr>
+                        {% endfor %}
+                    {% else %}
+                        <tr>
+                            <td colspan="5" class="no-data">No inventory items found</td>
+                        </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Sales -->
+        <div class="table-container">
+            <div class="table-actions">
+                <h2 class="section-title">
+                    <i class="fas fa-chart-line"></i>
+                    Sales
+                </h2>
+                <div>
+                    <input type="text" class="search-box" placeholder="Search sales...">
+                </div>
+            </div>
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Sale ID</th>
+                        <th>Item</th>
+                        <th>Date</th>
+                        <th>Quantity Sold</th>
+                        <th>Revenue</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% if sales %}
+                        {% for sale in sales %}
+                        <tr>
+                            <td>#{{ sale.Sale_ID }}</td>
+                            <td>{{ sale.Item_Name }}</td>
+                            <td>{{ sale.Sale_Date.strftime('%Y-%m-%d') }}</td>
+                            <td>{{ sale.Quantity_Sold }}</td>
+                            <td>₹{{ "%.2f"|format(sale.Revenue) }}</td>
+                        </tr>
+                        {% endfor %}
+                    {% else %}
+                        <tr>
+                            <td colspan="5" class="no-data">No sales records found</td>
+                        </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Suppliers -->
+        <div class="table-container">
+            <div class="table-actions">
+                <h2 class="section-title">
+                    <i class="fas fa-truck"></i>
+                    Suppliers
+                </h2>
+                <div>
+                    <input type="text" class="search-box" placeholder="Search suppliers...">
+                    <button class="add-button">
+                        <i class="fas fa-plus"></i>
+                        New Supplier
+                    </button>
+                </div>
+            </div>
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Supplier ID</th>
+                        <th>Name</th>
+                        <th>Contact Info</th>
+                        <th>Items Supplied</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% if suppliers %}
+                        {% for supplier in suppliers %}
+                        <tr>
+                            <td>#{{ supplier.Supplier_ID }}</td>
+                            <td>{{ supplier.Name }}</td>
+                            <td>{{ supplier.Contact_Info }}</td>
+                            <td>{{ supplier.Items_Supplied }}</td>
+                        </tr>
+                        {% endfor %}
+                    {% else %}
+                        <tr>
+                            <td colspan="4" class="no-data">No suppliers found</td>
+                        </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Order Details -->
+        <div class="table-container">
+            <div class="table-actions">
+                <h2 class="section-title">
+                    <i class="fas fa-receipt"></i>
+                    Order Details
+                </h2>
+                <div>
+                    <input type="text" class="search-box" placeholder="Search order details...">
+                </div>
+            </div>
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Order ID</th>
+                        <th>Item</th>
+                        <th>Quantity</th>
+                        <th>Unit Price</th>
+                        <th>Subtotal</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% if order_details %}
+                        {% for detail in order_details %}
+                        <tr>
+                            <td>#{{ detail.Order_ID }}</td>
+                            <td>{{ detail.Item_Name if detail.Item_Name else 'N/A' }}</td>
+                            <td>{{ detail.Quantity if detail.Quantity else '0' }}</td>
+                            <td>₹{{ "%.2f"|format(detail.Unit_Price) if detail.Unit_Price else '0.00' }}</td>
+                            <td>₹{{ "%.2f"|format(detail.Subtotal) if detail.Subtotal else '0.00' }}</td>
+                        </tr>
+                        {% endfor %}
+                    {% else %}
+                        <tr>
+                            <td colspan="5" class="no-data">No order details found</td>
+                        </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="flash-message {{ category }}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    <script>
+    function changeStatus(orderId, newStatus) {
+        fetch('/update_order_status', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ order_id: orderId, new_status: newStatus })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            } else {
+                alert('Error updating status: ' + data.error);
+            }
+        })
+        .catch(err => alert('Network error: ' + err));
+    }
+    </script>
+
+    <!-- New Batch Modal -->
+    <div id="batchModal" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.6); z-index:2000; align-items:center; justify-content:center;">
+      <div style="background:#222; color:#fff; padding:2rem; border-radius:10px; min-width:320px; max-width:90vw; position:relative;">
+        <h2 style="margin-bottom:1rem;">Add New Inventory Batch</h2>
+        <form id="batchForm">
+          <div style="margin-bottom:1rem;">
+            <label for="item_name">Item Name:</label><br>
+            <select id="item_name" name="item_name" required style="width:100%;padding:0.5rem;">
+              <option value="">Select Item</option>
+              {% for item in inventory_items %}
+                <option value="{{ item.Name }}">{{ item.Name }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div style="margin-bottom:1rem;">
+            <label for="quantity">Quantity:</label><br>
+            <input type="number" id="quantity" name="quantity" min="1" required style="width:100%;padding:0.5rem;">
+          </div>
+          <div style="margin-bottom:1rem;">
+            <label for="expiry_date">Expiry Date:</label><br>
+            <input type="date" id="expiry_date" name="expiry_date" required style="width:100%;padding:0.5rem;">
+          </div>
+          <div style="display:flex; gap:1rem; justify-content:flex-end;">
+            <button type="button" onclick="closeBatchModal()" style="background:#888; color:#fff; border:none; padding:0.5rem 1rem; border-radius:4px;">Cancel</button>
+            <button type="submit" style="background:var(--accent-color); color:#fff; border:none; padding:0.5rem 1rem; border-radius:4px;">Add Batch</button>
+          </div>
+          <div id="batchError" style="color:#f44336; margin-top:1rem; display:none;"></div>
+        </form>
+        <button onclick="closeBatchModal()" style="position:absolute; top:10px; right:10px; background:none; border:none; color:#fff; font-size:1.5rem; cursor:pointer;">&times;</button>
+      </div>
+    </div>
+
+    <script>
+    // Modal open/close
+    const batchModal = document.getElementById('batchModal');
+    function openBatchModal() { batchModal.style.display = 'flex'; }
+    function closeBatchModal() { batchModal.style.display = 'none'; document.getElementById('batchForm').reset(); document.getElementById('batchError').style.display = 'none'; }
+
+    // Wire up the New Batch button
+    const newBatchBtn = Array.from(document.getElementsByClassName('add-button')).find(btn => btn.textContent.includes('New Batch'));
+    if (newBatchBtn) newBatchBtn.onclick = openBatchModal;
+
+    // AJAX form submit
+    const batchForm = document.getElementById('batchForm');
+    batchForm.onsubmit = function(e) {
+      e.preventDefault();
+      const item_name = document.getElementById('item_name').value;
+      const quantity = document.getElementById('quantity').value;
+      const expiry_date = document.getElementById('expiry_date').value;
+      const errorDiv = document.getElementById('batchError');
+      errorDiv.style.display = 'none';
+      fetch('/create_batch', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ item_name, quantity, expiry_date })
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+          closeBatchModal();
+          location.reload();
+        } else {
+          errorDiv.textContent = data.error || 'Failed to add batch.';
+          errorDiv.style.display = 'block';
+        }
+      })
+      .catch(() => {
+        errorDiv.textContent = 'Network error.';
+        errorDiv.style.display = 'block';
+      });
+    };
+    </script>
+    <!-- End New Batch Modal -->
+
+    <!-- New Item Modal -->
+    <div id="itemModal" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.6); z-index:2000; align-items:center; justify-content:center;">
+      <div style="background:#222; color:#fff; padding:2rem; border-radius:10px; min-width:320px; max-width:90vw; position:relative;">
+        <h2 style="margin-bottom:1rem;">Add New Inventory Item</h2>
+        <form id="itemForm">
+          <div style="margin-bottom:1rem;">
+            <label for="item_name_input">Name:</label><br>
+            <input type="text" id="item_name_input" name="name" required style="width:100%;padding:0.5rem;">
+          </div>
+          <div style="margin-bottom:1rem;">
+            <label for="item_quantity">Quantity:</label><br>
+            <input type="number" id="item_quantity" name="quantity" min="0" required style="width:100%;padding:0.5rem;">
+          </div>
+          <div style="margin-bottom:1rem;">
+            <label for="item_unit">Unit:</label><br>
+            <input type="text" id="item_unit" name="unit" required style="width:100%;padding:0.5rem;">
+          </div>
+          <div style="margin-bottom:1rem;">
+            <label for="item_reorder">Reorder Level:</label><br>
+            <input type="number" id="item_reorder" name="reorder_level" min="0" required style="width:100%;padding:0.5rem;">
+          </div>
+          <div style="display:flex; gap:1rem; justify-content:flex-end;">
+            <button type="button" onclick="closeItemModal()" style="background:#888; color:#fff; border:none; padding:0.5rem 1rem; border-radius:4px;">Cancel</button>
+            <button type="submit" style="background:var(--accent-color); color:#fff; border:none; padding:0.5rem 1rem; border-radius:4px;">Add Item</button>
+          </div>
+          <div id="itemError" style="color:#f44336; margin-top:1rem; display:none;"></div>
+        </form>
+        <button onclick="closeItemModal()" style="position:absolute; top:10px; right:10px; background:none; border:none; color:#fff; font-size:1.5rem; cursor:pointer;">&times;</button>
+      </div>
+    </div>
+
+    <script>
+    // Modal open/close for New Item
+    const itemModal = document.getElementById('itemModal');
+    function openItemModal() { itemModal.style.display = 'flex'; }
+    function closeItemModal() { itemModal.style.display = 'none'; document.getElementById('itemForm').reset(); document.getElementById('itemError').style.display = 'none'; }
+
+    // Wire up the New Item button
+    const newItemBtn = Array.from(document.getElementsByClassName('add-button')).find(btn => btn.textContent.includes('New Item'));
+    if (newItemBtn) newItemBtn.onclick = openItemModal;
+
+    // AJAX form submit for New Item
+    const itemForm = document.getElementById('itemForm');
+    itemForm.onsubmit = function(e) {
+      e.preventDefault();
+      const name = document.getElementById('item_name_input').value;
+      const quantity = document.getElementById('item_quantity').value;
+      const unit = document.getElementById('item_unit').value;
+      const reorder_level = document.getElementById('item_reorder').value;
+      const errorDiv = document.getElementById('itemError');
+      errorDiv.style.display = 'none';
+      fetch('/create_item', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, quantity, unit, reorder_level })
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+          closeItemModal();
+          location.reload();
+        } else {
+          errorDiv.textContent = data.error || 'Failed to add item.';
+          errorDiv.style.display = 'block';
+        }
+      })
+      .catch(() => {
+        errorDiv.textContent = 'Network error.';
+        errorDiv.style.display = 'block';
+      });
+    };
+    </script>
+    <!-- End New Item Modal -->
+
+    <!-- New Supplier Modal -->
+    <div id="supplierModal" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.6); z-index:2000; align-items:center; justify-content:center;">
+      <div style="background:#222; color:#fff; padding:2rem; border-radius:10px; min-width:320px; max-width:90vw; position:relative;">
+        <h2 style="margin-bottom:1rem;">Add New Supplier</h2>
+        <form id="supplierForm">
+          <div style="margin-bottom:1rem;">
+            <label for="supplier_name">Name:</label><br>
+            <input type="text" id="supplier_name" name="name" required style="width:100%;padding:0.5rem;">
+          </div>
+          <div style="margin-bottom:1rem;">
+            <label for="supplier_contact">Contact Info:</label><br>
+            <input type="text" id="supplier_contact" name="contact_info" required style="width:100%;padding:0.5rem;">
+          </div>
+          <div style="margin-bottom:1rem;">
+            <label for="supplier_items">Items Supplied:</label><br>
+            <input type="text" id="supplier_items" name="items_supplied" required style="width:100%;padding:0.5rem;">
+          </div>
+          <div style="display:flex; gap:1rem; justify-content:flex-end;">
+            <button type="button" onclick="closeSupplierModal()" style="background:#888; color:#fff; border:none; padding:0.5rem 1rem; border-radius:4px;">Cancel</button>
+            <button type="submit" style="background:var(--accent-color); color:#fff; border:none; padding:0.5rem 1rem; border-radius:4px;">Add Supplier</button>
+          </div>
+          <div id="supplierError" style="color:#f44336; margin-top:1rem; display:none;"></div>
+        </form>
+        <button onclick="closeSupplierModal()" style="position:absolute; top:10px; right:10px; background:none; border:none; color:#fff; font-size:1.5rem; cursor:pointer;">&times;</button>
+      </div>
+    </div>
+
+    <script>
+    // Modal open/close for New Supplier
+    const supplierModal = document.getElementById('supplierModal');
+    function openSupplierModal() { supplierModal.style.display = 'flex'; }
+    function closeSupplierModal() { supplierModal.style.display = 'none'; document.getElementById('supplierForm').reset(); document.getElementById('supplierError').style.display = 'none'; }
+
+    // Wire up the New Supplier button
+    const newSupplierBtn = Array.from(document.getElementsByClassName('add-button')).find(btn => btn.textContent.includes('New Supplier'));
+    if (newSupplierBtn) newSupplierBtn.onclick = openSupplierModal;
+
+    // AJAX form submit for New Supplier
+    const supplierForm = document.getElementById('supplierForm');
+    supplierForm.onsubmit = function(e) {
+      e.preventDefault();
+      const name = document.getElementById('supplier_name').value;
+      const contact_info = document.getElementById('supplier_contact').value;
+      const items_supplied = document.getElementById('supplier_items').value;
+      const errorDiv = document.getElementById('supplierError');
+      errorDiv.style.display = 'none';
+      fetch('/create_supplier', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, contact_info, items_supplied })
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+          closeSupplierModal();
+          location.reload();
+        } else {
+          errorDiv.textContent = data.error || 'Failed to add supplier.';
+          errorDiv.style.display = 'block';
+        }
+      })
+      .catch(() => {
+        errorDiv.textContent = 'Network error.';
+        errorDiv.style.display = 'block';
+      });
+    };
+    </script>
+    <!-- End New Supplier Modal -->
+</body>
+</html> 

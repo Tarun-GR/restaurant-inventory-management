@@ -1,0 +1,1667 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JIT Restaurant</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+    <style>
+        :root {
+            --dark-bg: #121212;
+            --dark-card: rgba(30, 30, 30, 0.85);
+            --dark-surface: rgba(45, 45, 45, 0.9);
+            --text-primary: #ffffff;
+            --text-secondary: #e0e0e0;
+            --accent-color: #FF7043;
+            --accent-dark: #4CAF50;
+            --accent-light: #81C784;
+        }
+
+        body {
+            background-color: var(--dark-bg);
+            color: var(--text-primary);
+            background-image: linear-gradient(rgba(0,0,0,0.1), rgba(0,0,0,0.0)), 
+                url("{{ url_for('static', filename='images/beachside.jpg') }}");
+            background-position: center;
+            background-repeat: no-repeat;
+            background-size: cover;
+            background-attachment: fixed;
+            min-height: 100vh;
+        }
+
+        nav {
+            background-color: rgba(30, 30, 30, 0.8);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 2px 20px rgba(0,0,0,0.2);
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .nav-flex-row li a {
+            color: var(--text-primary);
+            font-weight: 500;
+            text-decoration: none;
+            padding: 0.8rem 1.2rem;
+            transition: all 0.3s ease;
+            border-radius: 4px;
+        }
+
+        .nav-flex-row li a:hover {
+            color: var(--accent-light);
+            background-color: rgba(255,255,255,0.1);
+        }
+
+        .nav-flex-row li a.active {
+            color: var(--accent-light);
+            background-color: rgba(255,255,255,0.15);
+        }
+
+        .advantages-section, 
+        .why-choose-section,
+        .founders-section,
+        .contact-section,
+        .follow-section {
+            background-color: var(--dark-card);
+            box-shadow: 0 4px 25px rgba(0,0,0,0.3);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .info-box,
+        .founder-card,
+        .contact-card,
+        .social-card {
+            background: linear-gradient(145deg, rgba(45, 45, 45, 0.8), rgba(30, 30, 30, 0.9));
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .info-header h3,
+        .founder-info h4,
+        .contact-card h4,
+        .social-card h4,
+        .section-title,
+        .why-choose-section h3,
+        .founders-section h3,
+        .contact-section h3,
+        .follow-section h3 {
+            color: var(--text-primary);
+            font-size: 2.5em;
+            margin-bottom: 2rem;
+        }
+
+        .info-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            position: relative;
+        }
+
+        .info-header i {
+            font-size: 2.5em;
+            margin-right: 1rem;
+            background: linear-gradient(45deg, var(--accent-color), var(--accent-dark));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            transition: all 0.3s ease;
+        }
+
+        .info-header h3 {
+            font-size: 1.8em;
+            margin: 0;
+            background: linear-gradient(45deg, #FFFFFF, #FFE0B2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 700;
+            text-shadow: 0 2px 10px rgba(255, 255, 255, 0.4);
+            letter-spacing: 0.5px;
+            position: relative;
+        }
+
+        .info-header h3::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 100%;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.5), transparent);
+        }
+
+        .info-box:hover .info-header h3 {
+            background: linear-gradient(45deg, #FFFFFF, #FFF8E1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 2px 15px rgba(255, 255, 255, 0.6);
+        }
+
+        .info-box:hover .info-header i {
+            transform: scale(1.1) rotate(5deg);
+            filter: drop-shadow(0 0 8px rgba(255, 107, 74, 0.5));
+        }
+
+        .info-content p,
+        .info-content li,
+        .founder-description,
+        .contact-card p,
+        .social-card p,
+        .follow-text {
+            color: var(--text-secondary);
+        }
+
+        .info-content li:before {
+            color: var(--accent-color);
+        }
+
+        .founder-title {
+            color: var(--accent-light);
+        }
+
+        .contact-icon {
+            color: var(--accent-light);
+        }
+
+        .contact-card a,
+        .social-link {
+            color: var(--accent-color);
+        }
+
+        .contact-card a:hover,
+        .social-link:hover {
+            color: var(--accent-dark);
+        }
+
+        .profile-circle {
+            border-color: var(--accent-color);
+            box-shadow: 0 4px 15px rgba(255,107,74,0.2);
+        }
+
+        .section-intro {
+            background: none;
+            color: white;
+            text-align: center;
+            padding: 120px 20px;
+            position: relative;
+        }
+
+        .section-intro h1 {
+            font-size: 4.5em;
+            margin-bottom: 30px;
+            font-weight: 700;
+            color: #ffffff;
+            text-shadow: 
+                3px 3px 6px rgba(0,0,0,0.5),
+                -1px -1px 0 rgba(0,0,0,0.3),
+                1px -1px 0 rgba(0,0,0,0.3),
+                -1px 1px 0 rgba(0,0,0,0.3),
+                1px 1px 0 rgba(0,0,0,0.3);
+            letter-spacing: 1px;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .section-intro p {
+            font-size: 3.2em;
+            margin-bottom: 30px;
+            font-weight: 600;
+            color: #ffffff;
+            text-shadow: 
+                2px 2px 4px rgba(0,0,0,0.6),
+                -1px -1px 0 rgba(0,0,0,0.4),
+                1px -1px 0 rgba(0,0,0,0.4),
+                -1px 1px 0 rgba(0,0,0,0.4),
+                1px 1px 0 rgba(0,0,0,0.4);
+            letter-spacing: 1px;
+            font-family: 'Poppins', sans-serif;
+            padding: 0 20px;
+        }
+
+        .section-intro p::before {
+            display: none;
+        }
+
+        .intro-text {
+            font-size: 1.6em;
+            max-width: 800px;
+            margin: 0 auto;
+            opacity: 1;
+            color: #ffffff;
+            text-shadow: 
+                2px 2px 4px rgba(0,0,0,0.5),
+                -1px -1px 0 rgba(0,0,0,0.3),
+                1px -1px 0 rgba(0,0,0,0.3),
+                -1px 1px 0 rgba(0,0,0,0.3),
+                1px 1px 0 rgba(0,0,0,0.3);
+            letter-spacing: 0.5px;
+            font-weight: 500;
+            font-family: 'Poppins', sans-serif;
+            animation: fadeInUp 0.8s ease-out forwards;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .section-intro h1 {
+                font-size: 3.5em;
+            }
+            .section-intro p {
+                font-size: 2.5em;
+            }
+            .intro-text {
+                font-size: 1.3em;
+            }
+        }
+
+        .advantages-section,
+        .why-choose-section {
+            margin: 2rem auto;
+            border-radius: 15px;
+            max-width: 1400px;
+            padding: 2rem;
+            background-color: var(--dark-card);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .advantages-section {
+            text-align: center;
+            padding: 4rem 2rem;
+            position: relative;
+            background: linear-gradient(145deg, 
+                rgba(30, 30, 30, 0.92),
+                rgba(45, 45, 45, 0.95)
+            );
+        }
+
+        .advantages-section h3,
+        .contact-section h3,
+        .follow-section h3,
+        .founders-section h3,
+        .why-choose-section h3 {
+            font-size: 3.2em;
+            margin-bottom: 2rem;
+            color: #ffffff;
+            text-align: center;
+            font-weight: 600;
+            text-shadow: 
+                2px 2px 4px rgba(0,0,0,0.5),
+                -1px -1px 0 rgba(0,0,0,0.3),
+                1px -1px 0 rgba(0,0,0,0.3),
+                -1px 1px 0 rgba(0,0,0,0.3),
+                1px 1px 0 rgba(0,0,0,0.3);
+            letter-spacing: 1px;
+            position: relative;
+            display: inline-block;
+            padding-bottom: 10px;
+            background: none;
+            -webkit-background-clip: initial;
+            -webkit-text-fill-color: initial;
+        }
+
+        .advantages-section h3::after,
+        .contact-section h3::after,
+        .follow-section h3::after,
+        .founders-section h3::after,
+        .why-choose-section h3::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 3px;
+            background: linear-gradient(90deg, var(--accent-color), var(--accent-light));
+            border-radius: 2px;
+        }
+
+        .info-box .info-header {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 2rem;
+            position: relative;
+            text-align: center;
+        }
+
+        .info-box .info-header i {
+            font-size: 3em;
+            color: var(--accent-color);
+            text-shadow: 0 0 10px rgba(255, 107, 74, 0.3);
+            transition: all 0.3s ease;
+            margin-bottom: 1.2rem;
+        }
+
+        .info-box .info-header h3 {
+            font-size: 2.2em;
+            color: var(--text-primary);
+            font-weight: 600;
+            text-shadow: 
+                2px 2px 4px rgba(0,0,0,0.5),
+                -1px -1px 0 rgba(0,0,0,0.3),
+                1px -1px 0 rgba(0,0,0,0.3),
+                -1px 1px 0 rgba(0,0,0,0.3),
+                1px 1px 0 rgba(0,0,0,0.3);
+            letter-spacing: 0.5px;
+            position: relative;
+            padding-bottom: 12px;
+            margin: 0;
+        }
+
+        .info-box .info-header h3::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 2px;
+            background: linear-gradient(90deg, var(--accent-color), var(--accent-light));
+            border-radius: 2px;
+        }
+
+        .info-box:hover .info-header i {
+            transform: scale(1.1) rotate(5deg);
+            color: var(--accent-light);
+            text-shadow: 0 0 15px rgba(255, 107, 74, 0.5);
+        }
+
+        .info-content {
+            text-align: center;
+        }
+        .info-content p {
+            color: var(--text-secondary);
+            margin-bottom: 1.5rem;
+            line-height: 1.8;
+            font-size: 1.1em;
+            transition: color 0.3s ease;
+        }
+
+        .info-box:hover .info-content p {
+            color: var(--text-primary);
+        }
+
+        .info-content ul {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        .info-content li {
+            margin-bottom: 1rem;
+            position: relative;
+            color: var(--text-secondary);
+            transition: all 0.3s ease;
+            display: block;
+            text-align: center;
+            padding-left: 0;
+        }
+        .info-content li::before {
+            content: "•";
+            color: var(--accent-color);
+            margin-right: 8px;
+            font-size: 1.2em;
+            display: inline-block;
+        }
+
+        .info-box:hover .info-content li {
+            color: var(--text-primary);
+            transform: translateX(5px);
+        }
+
+        .info-box:hover .info-content li::before {
+            transform: translateX(3px);
+            color: var(--accent-color);
+        }
+
+        @keyframes glow {
+            0% {
+                box-shadow: 0 0 5px rgba(255, 107, 74, 0.2);
+            }
+            50% {
+                box-shadow: 0 0 20px rgba(255, 107, 74, 0.4);
+            }
+            100% {
+                box-shadow: 0 0 5px rgba(255, 107, 74, 0.2);
+            }
+        }
+
+        .info-box:hover {
+            animation: glow 2s infinite;
+        }
+
+        @media (max-width: 1200px) {
+            .three-column-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .three-column-grid {
+                grid-template-columns: 1fr;
+            }
+            .info-box {
+                margin: 1rem;
+            }
+        }
+
+        .contact-section,
+        .follow-section {
+            margin: 2rem auto;
+            border-radius: 15px;
+            max-width: 1400px;
+            padding: 3rem 2rem;
+            text-align: center;
+        }
+
+        .contact-section h3,
+        .follow-section h3 {
+            font-size: 3.2em;
+            margin-bottom: 2rem;
+            color: var(--text-primary);
+            text-align: center;
+            font-weight: 600;
+            text-shadow: 
+                2px 2px 4px rgba(0,0,0,0.5),
+                -1px -1px 0 rgba(0,0,0,0.3),
+                1px -1px 0 rgba(0,0,0,0.3),
+                -1px 1px 0 rgba(0,0,0,0.3),
+                1px 1px 0 rgba(0,0,0,0.3);
+            letter-spacing: 1px;
+            position: relative;
+            display: inline-block;
+            padding-bottom: 15px;
+        }
+
+        .contact-section h3::after,
+        .follow-section h3::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 3px;
+            background: linear-gradient(90deg, var(--accent-color), var(--accent-light));
+            border-radius: 2px;
+        }
+
+        .social-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .social-card {
+            background: linear-gradient(145deg, rgba(45, 45, 45, 0.8), rgba(30, 30, 30, 0.9));
+            border-radius: 15px;
+            padding: 2rem;
+            text-align: center;
+            text-decoration: none;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 1px solid rgba(255,255,255,0.1);
+            position: relative;
+            z-index: 1;
+            overflow: hidden;
+        }
+        .social-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            transform: scaleX(0);
+            transform-origin: left;
+            transition: transform 0.3s ease;
+        }
+        .social-card.youtube::before { background: linear-gradient(90deg, #FF0000, #FF6666); }
+        .social-card.instagram::before { background: linear-gradient(90deg, #E1306C, #F77737); }
+        .social-card.facebook::before { background: linear-gradient(90deg, #4267B2, #5B7EC2); }
+        .social-card::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            z-index: -1;
+        }
+        .social-card.youtube::after {             background: radial-gradient(circle at top right, rgba(255, 0, 0, 0.1), transparent 60%);        }
+        .social-card.instagram::after {            background: radial-gradient(circle at top right, rgba(225, 48, 108, 0.1), transparent 60%);        }
+        .social-card.facebook::after {            background: radial-gradient(circle at top right, rgba(66, 103, 178, 0.1), transparent 60%);        }
+        .social-card:hover {            transform: translateY(-10px);            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);        }
+        .social-card.youtube:hover {             border-color: rgba(255, 0, 0, 0.3);            animation: youtubeGlow 2s infinite;        }
+        .social-card.instagram:hover {            border-color: rgba(225, 48, 108, 0.3);            animation: instagramGlow 2s infinite;        }
+        .social-card.facebook:hover {            border-color: rgba(66, 103, 178, 0.3);            animation: facebookGlow 2s infinite;        }
+        .social-card:hover::before {            transform: scaleX(1);        }
+        .social-card:hover::after {            opacity: 1;        }
+        @keyframes youtubeGlow {            0% { box-shadow: 0 0 5px rgba(255, 0, 0, 0.2); }            50% { box-shadow: 0 0 30px rgba(255, 0, 0, 0.4); }            100% { box-shadow: 0 0 5px rgba(255, 0, 0, 0.2); }        }
+        @keyframes instagramGlow {            0% { box-shadow: 0 0 5px rgba(225, 48, 108, 0.2); }            50% { box-shadow: 0 0 30px rgba(225, 48, 108, 0.4); }            100% { box-shadow: 0 0 5px rgba(225, 48, 108, 0.2); }        }
+        @keyframes facebookGlow {            0% { box-shadow: 0 0 5px rgba(66, 103, 178, 0.2); }            50% { box-shadow: 0 0 30px rgba(66, 103, 178, 0.4); }            100% { box-shadow: 0 0 5px rgba(66, 103, 178, 0.2); }        }
+
+        .founders-section {
+            margin: 2rem auto;
+            border-radius: 15px;
+            max-width: 1400px;
+            padding: 4rem 2rem;
+            text-align: center;
+            background: linear-gradient(145deg, 
+                rgba(30, 30, 30, 0.92),
+                rgba(45, 45, 45, 0.95)
+            );
+        }
+
+        .founders-section h3 {
+            font-size: 3.2em;
+            margin-bottom: 3rem;
+            color: var(--text-primary);
+            text-align: center;
+            font-weight: 600;
+            text-shadow: 
+                2px 2px 4px rgba(0,0,0,0.5),
+                -1px -1px 0 rgba(0,0,0,0.3),
+                1px -1px 0 rgba(0,0,0,0.3),
+                -1px 1px 0 rgba(0,0,0,0.3),
+                1px 1px 0 rgba(0,0,0,0.3);
+            letter-spacing: 1px;
+            position: relative;
+            display: inline-block;
+            padding-bottom: 15px;
+        }
+
+        .founders-section h3::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 3px;
+            background: linear-gradient(90deg, var(--accent-color), var(--accent-light));
+            border-radius: 2px;
+        }
+
+        .founders-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 3rem;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 1rem;
+        }
+
+        .founder-card {
+            background: var(--dark-surface);
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 4px 25px rgba(0,0,0,0.4);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            position: relative;
+            z-index: 1;
+        }
+
+        .founder-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--accent-color), var(--accent-light));
+            transform: scaleX(0);
+            transform-origin: left;
+            transition: transform 0.3s ease;
+        }
+
+        .founder-card::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle at top right, 
+                rgba(255, 107, 74, 0.1), 
+                transparent 60%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            z-index: -1;
+        }
+
+        .founder-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
+            border-color: rgba(255, 107, 74, 0.3);
+        }
+
+        .founder-card:hover::before {
+            transform: scaleX(1);
+        }
+
+        .founder-card:hover::after {
+            opacity: 1;
+        }
+
+        .founder-image {
+            padding: 2rem;
+            background: linear-gradient(145deg, var(--dark-surface), var(--dark-card));
+            position: relative;
+            overflow: hidden;
+        }
+
+        .founder-image::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle at center, 
+                rgba(255, 107, 74, 0.15), 
+                transparent 70%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .founder-card:hover .founder-image::after {
+            opacity: 1;
+        }
+
+        .profile-circle {
+            width: 220px;
+            height: 220px;
+            border-radius: 50%;
+            margin: 0 auto;
+            overflow: hidden;
+            border: 4px solid var(--accent-color);
+            box-shadow: 0 4px 15px rgba(255,107,74,0.2);
+            transition: all 0.3s ease;
+            position: relative;
+            z-index: 1;
+        }
+
+        .founder-card:hover .profile-circle {
+            box-shadow: 0 0 30px rgba(255,107,74,0.4);
+            transform: scale(1.05);
+            border-width: 5px;
+        }
+
+        .profile-circle img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            filter: brightness(0.9);
+            transition: all 0.3s ease;
+        }
+
+        .founder-card:hover .profile-circle img {
+            filter: brightness(1.1);
+        }
+
+        .founder-info {
+            padding: 2rem;
+            background: var(--dark-surface);
+        }
+
+        .founder-info h4 {
+            font-size: 2em;
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+        }
+
+        .founder-title {
+            color: var(--accent-light);
+            font-size: 1.2em;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            letter-spacing: 0.5px;
+        }
+
+        .founder-description {
+            color: var(--text-secondary);
+            line-height: 1.8;
+            margin-bottom: 1.5rem;
+            font-size: 1.1em;
+        }
+
+        .founder-social {
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+            padding-top: 1rem;
+            border-top: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .founder-social .social-link {
+            color: var(--accent-color);
+            font-size: 1.5em;
+            transition: all 0.3s ease;
+            padding: 0.5rem;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.05);
+        }
+
+        .founder-social .social-link:hover {
+            color: var(--accent-light);
+            transform: translateY(-3px);
+            background: rgba(255,255,255,0.1);
+            box-shadow: 0 5px 15px rgba(255,107,74,0.3);
+        }
+
+        @media (max-width: 768px) {
+            .founders-grid {
+                grid-template-columns: 1fr;
+                padding: 0.5rem;
+            }
+
+            .profile-circle {
+                width: 180px;
+                height: 180px;
+        }
+
+            .founder-info h4 {
+                font-size: 1.8em;
+            }
+
+            .founder-title {
+                font-size: 1.1em;
+            }
+
+            .founder-description {
+                font-size: 1em;
+            }
+        }
+
+        .contact-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .contact-card {
+            background: linear-gradient(145deg, rgba(45, 45, 45, 0.8), rgba(30, 30, 30, 0.9));
+            border-radius: 15px;
+            padding: 2rem;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 1px solid rgba(255,255,255,0.1);
+            position: relative;
+            z-index: 1;
+            overflow: hidden;
+        }
+        .contact-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--accent-color), var(--accent-light));
+            transform: scaleX(0);
+            transform-origin: left;
+            transition: transform 0.3s ease;
+        }
+        .contact-card::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle at top right, 
+                rgba(255, 107, 74, 0.1), 
+                transparent 60%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            z-index: -1;
+        }
+        .contact-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
+            border-color: rgba(255, 107, 74, 0.3);
+            animation: contactGlow 2s infinite;
+        }
+        .contact-card:hover::before {
+            transform: scaleX(1);
+        }
+        .contact-card:hover::after {
+            opacity: 1;
+        }
+        @keyframes contactGlow {
+            0% {
+                box-shadow: 0 0 5px rgba(255, 107, 74, 0.2);
+            }
+            50% {
+                box-shadow: 0 0 30px rgba(255, 107, 74, 0.4);
+            }
+            100% {
+                box-shadow: 0 0 5px rgba(255, 107, 74, 0.2);
+            }
+        }
+        .contact-icon {
+            font-size: 2.8em;
+            color: var(--accent-light);
+            margin-bottom: 1.5rem;
+            transition: all 0.3s ease;
+        }
+        .contact-card:hover .contact-icon {
+            transform: scale(1.1) rotate(5deg);
+            filter: drop-shadow(0 0 8px rgba(255, 107, 74, 0.5));
+        }
+
+        .contact-card h4 {
+            color: var(--text-primary);
+            font-size: 1.5em;
+            margin-bottom: 1rem;
+        }
+
+        .contact-card p {
+            color: var(--text-secondary);
+            line-height: 1.6;
+            margin-bottom: 1rem;
+        }
+
+        .contact-card a {
+            color: #573b8a;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .contact-card a:hover {
+            color: #ff6b4a;
+        }
+
+        .social-links {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .social-links .social-link {
+            font-size: 1.5em;
+            color: #573b8a;
+            transition: color 0.3s ease;
+        }
+
+        .social-links .social-link:hover {
+            color: #ff6b4a;
+        }
+
+        .follow-text {
+            color: var(--text-secondary);
+            font-size: 1.1em;
+            max-width: 600px;
+            margin: 0 auto 2rem;
+        }
+
+        .why-choose-section {
+            text-align: center;
+        }
+
+        .why-choose-section h3 {
+            text-align: center;
+            font-size: 2.5em;
+            margin-bottom: 2rem;
+            color: var(--text-primary);
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+            display: inline-block;
+            position: relative;
+            padding-bottom: 15px;
+        }
+
+        .why-choose-section h3::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 3px;
+            background: linear-gradient(90deg, var(--accent-color), var(--accent-light));
+            border-radius: 2px;
+        }
+
+        .three-column-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 2rem;
+            padding: 1rem;
+        }
+
+        .info-box {
+            padding: 2rem;
+            position: relative;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 1;
+        }
+
+        .info-box::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--accent-color), var(--accent-dark));
+            transform: scaleX(0);
+            transform-origin: left;
+            transition: transform 0.3s ease;
+        }
+
+        .info-box::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle at top right, 
+                rgba(255, 107, 74, 0.1), 
+                transparent 60%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            z-index: -1;
+        }
+
+        .info-box:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+            border-color: rgba(255, 107, 74, 0.3);
+        }
+
+        .info-box:hover::before {
+            transform: scaleX(1);
+        }
+
+        .info-box:hover::after {
+            opacity: 1;
+        }
+
+        .info-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            position: relative;
+        }
+
+        .info-header i {
+            font-size: 2.5em;
+            margin-right: 1rem;
+            background: linear-gradient(45deg, var(--accent-color), var(--accent-dark));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            transition: all 0.3s ease;
+        }
+
+        .info-header h3 {
+            font-size: 1.8em;
+            margin: 0;
+            background: linear-gradient(45deg, #FFFFFF, #FFE0B2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 700;
+            text-shadow: 0 2px 10px rgba(255, 255, 255, 0.4);
+            letter-spacing: 0.5px;
+            position: relative;
+        }
+
+        .info-header h3::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 100%;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.5), transparent);
+        }
+
+        .info-box:hover .info-header h3 {
+            background: linear-gradient(45deg, #FFFFFF, #FFF8E1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 2px 15px rgba(255, 255, 255, 0.6);
+        }
+
+        .info-box:hover .info-header i {
+            transform: scale(1.1) rotate(5deg);
+            filter: drop-shadow(0 0 8px rgba(255, 107, 74, 0.5));
+        }
+
+        /* Chatbot Styles */
+        .chatbot-button {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(145deg, var(--accent-color), var(--accent-dark));
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 1000;
+            border: none;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .chatbot-button:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.4);
+        }
+
+        .chatbot-button i {
+            font-size: 24px;
+            color: white;
+        }
+
+        .chatbot-container {
+            position: fixed;
+            bottom: 100px;
+            right: 30px;
+            width: 350px;
+            height: 500px;
+            background: var(--dark-card);
+            border-radius: 15px;
+            box-shadow: 0 4px 25px rgba(0,0,0,0.3);
+            display: none;
+            flex-direction: column;
+            z-index: 1000;
+            border: 1px solid rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+        }
+
+        .chatbot-container.active {
+            display: flex;
+        }
+
+        .chatbot-header {
+            padding: 15px;
+            background: linear-gradient(145deg, var(--accent-color), var(--accent-dark));
+            border-radius: 15px 15px 0 0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .chatbot-header h3 {
+            color: white;
+            margin: 0;
+            font-size: 1.2em;
+        }
+
+        .close-chat {
+            background: none;
+            border: none;
+            color: white;
+            cursor: pointer;
+            font-size: 1.2em;
+            padding: 0;
+            transition: transform 0.3s ease;
+        }
+
+        .close-chat:hover {
+            transform: scale(1.1);
+        }
+
+        .chat-messages {
+            flex: 1;
+            padding: 15px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .message {
+            max-width: 80%;
+            padding: 10px 15px;
+            border-radius: 15px;
+            margin-bottom: 5px;
+            word-wrap: break-word;
+        }
+
+        .bot-message {
+            background: rgba(255,255,255,0.1);
+            color: var(--text-primary);
+            align-self: flex-start;
+            border-bottom-left-radius: 5px;
+        }
+
+        .user-message {
+            background: linear-gradient(145deg, var(--accent-color), var(--accent-dark));
+            color: white;
+            align-self: flex-end;
+            border-bottom-right-radius: 5px;
+        }
+
+        .chat-input {
+            padding: 15px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            display: flex;
+            gap: 10px;
+        }
+
+        .chat-input input {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 20px;
+            background: rgba(255,255,255,0.1);
+            color: var(--text-primary);
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        .chat-input input:focus {
+            border-color: var(--accent-color);
+            box-shadow: 0 0 5px rgba(255,107,74,0.3);
+        }
+
+        .send-message {
+            background: linear-gradient(145deg, var(--accent-color), var(--accent-dark));
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .send-message:hover {
+            transform: scale(1.1);
+        }
+
+        .send-message i {
+            color: white;
+            font-size: 1.2em;
+        }
+
+        /* Custom Scrollbar for Chat Messages */
+        .chat-messages::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .chat-messages::-webkit-scrollbar-track {
+            background: rgba(255,255,255,0.1);
+            border-radius: 3px;
+        }
+
+        .chat-messages::-webkit-scrollbar-thumb {
+            background: var(--accent-color);
+            border-radius: 3px;
+        }
+
+        .chat-messages::-webkit-scrollbar-thumb:hover {
+            background: var(--accent-dark);
+        }
+
+        @media (max-width: 480px) {
+            .chatbot-container {
+                width: calc(100% - 40px);
+                right: 20px;
+                left: 20px;
+        }
+        }
+
+        /* Partners Section Styles */
+        .partners-section {
+            margin: 2rem auto;
+            border-radius: 15px;
+            max-width: 1400px;
+            padding: 4rem 2rem;
+            text-align: center;
+            background: linear-gradient(145deg, 
+                rgba(30, 30, 30, 0.92),
+                rgba(45, 45, 45, 0.95)
+            );
+        }
+
+        .partners-section h3 {
+            font-size: 3.2em;
+            margin-bottom: 3rem;
+            color: #ffffff;
+            text-align: center;
+            font-weight: 600;
+            text-shadow: 
+                2px 2px 4px rgba(0,0,0,0.5),
+                -1px -1px 0 rgba(0,0,0,0.3),
+                1px -1px 0 rgba(0,0,0,0.3),
+                -1px 1px 0 rgba(0,0,0,0.3),
+                1px 1px 0 rgba(0,0,0,0.3);
+            letter-spacing: 1px;
+            position: relative;
+            display: inline-block;
+            padding-bottom: 15px;
+        }
+
+        .partners-section h3::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 3px;
+            background: linear-gradient(90deg, var(--accent-color), var(--accent-light));
+            border-radius: 2px;
+        }
+
+        .partners-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            padding: 2rem;
+        }
+
+        .partner-card {
+            background: var(--dark-surface);
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 4px 25px rgba(0,0,0,0.4);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            position: relative;
+        }
+
+        .partner-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
+            border-color: rgba(255, 107, 74, 0.3);
+        }
+
+        .partner-image {
+            width: 100%;
+            height: 200px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .partner-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+        }
+
+        .partner-card:hover .partner-image img {
+            transform: scale(1.1);
+        }
+
+        .partner-card h4 {
+            color: var(--text-primary);
+            font-size: 1.4em;
+            padding: 1rem;
+            margin: 0;
+            text-align: center;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(5px);
+        }
+
+        @media (max-width: 768px) {
+            .partners-grid {
+                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+                padding: 1rem;
+            }
+            
+            .partner-image {
+                height: 150px;
+            }
+            
+            .partner-card h4 {
+                font-size: 1.2em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <ul class="nav-flex-row">
+            <li><a href="{{ url_for('dashboard') }}" class="active">Home</a></li>
+            <li><a href="{{ url_for('partners') }}">Partners</a></li>
+            <li><a href="{{ url_for('subscription') }}">Subscription</a></li>
+            <li><a href="{{ url_for('restaurant_login') }}">Restaurant Login</a></li>
+            <li><a href="{{ url_for('logout') }}">Logout</a></li>
+        </ul>
+    </nav>
+
+    <section class="section-intro" id="home">
+        <h1>Welcome, {{ user.username|upper }}</h1>
+        <p>JIT Restaurant Management Systems</p>
+        <div class="intro-text">
+            Your Real-Time Restaurant Management Dashboard
+        </div>
+    </section>
+
+    <section class="advantages-section">
+        <h3>About Our Company</h3>
+        <div class="three-column-grid">
+            <div class="info-box">
+                <div class="info-header">
+                    <i class="fas fa-gem"></i>
+                    <h3>Our Excellence</h3>
+                </div>
+                <div class="info-content">
+                    <p>Setting the gold standard in restaurant management, we deliver cutting-edge solutions that revolutionize how restaurants operate. Our platform seamlessly blends innovation with practical operational needs.</p>
+                    <ul>
+                        <li>Founded in 2024</li>
+                        <li>Industry leader in restaurant tech</li>
+                        <li>Serving 1000+ restaurants</li>
+                        <li>24/7 customer support</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="info-box">
+                <div class="info-header">
+                    <i class="fas fa-star"></i>
+                    <h3>Our Mission</h3>
+                </div>
+                <div class="info-content">
+                    <p>We strive to empower restaurants with smart technology solutions that streamline operations and enhance customer experience.</p>
+                    <ul>
+                        <li>Innovative solutions</li>
+                        <li>Customer-centric approach</li>
+                        <li>Continuous improvement</li>
+                        <li>Sustainable practices</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="info-box">
+                <div class="info-header">
+                    <i class="fas fa-chart-line"></i>
+                    <h3>Our Impact</h3>
+                </div>
+                <div class="info-content">
+                    <p>Making a real difference in the restaurant industry through technology and innovation.</p>
+                    <ul>
+                        <li>50% reduction in food waste</li>
+                        <li>30% increase in efficiency</li>
+                        <li>95% customer satisfaction</li>
+                        <li>Growing partner network</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="why-choose-section">
+        <h3>Why Choose JIT Restaurant Management?</h3>
+        <div class="three-column-grid">
+            <div class="info-box">
+                <div class="info-header">
+                    <i class="fas fa-rocket"></i>
+                    <h3>Smart Technology</h3>
+                </div>
+                <div class="info-content">
+                    <p>Experience the power of cutting-edge restaurant management technology that adapts to your needs.</p>
+                    <ul>
+                        <li>AI-powered inventory management</li>
+                        <li>Real-time analytics dashboard</li>
+                        <li>Cloud-based accessibility</li>
+                        <li>Automated order processing</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="info-box">
+                <div class="info-header">
+                    <i class="fas fa-chart-pie"></i>
+                    <h3>Business Growth</h3>
+                </div>
+                <div class="info-content">
+                    <p>Transform your restaurant operations and drive sustainable business growth with our solutions.</p>
+                    <ul>
+                        <li>Increase profit margins by 25%</li>
+                        <li>Reduce operational costs</li>
+                        <li>Optimize staff efficiency</li>
+                        <li>Scale your business easily</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="info-box">
+                <div class="info-header">
+                    <i class="fas fa-users"></i>
+                    <h3>Customer Success</h3>
+                </div>
+                <div class="info-content">
+                    <p>Join hundreds of successful restaurants that have revolutionized their operations with our system.</p>
+                    <ul>
+                        <li>24/7 dedicated support</li>
+                        <li>Regular feature updates</li>
+                        <li>Training and onboarding</li>
+                        <li>Community of restaurateurs</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="contact-section" id="contact">
+        <h3>Contact Us</h3>
+        <div class="contact-grid">
+            <div class="contact-card">
+                <div class="contact-icon">
+                    <i class="fas fa-map-marker-alt"></i>
+                </div>
+                <h4>Our Office</h4>
+                <p>
+                    JIT Restaurant Management Systems<br>
+                    #42, Whitefield Tech Park<br>
+                    ITPL Main Road, Whitefield<br>
+                    Bangalore, Karnataka 560066<br>
+                    India
+                </p>
+            </div>
+
+            <div class="contact-card">
+                <div class="contact-icon">
+                    <i class="fas fa-phone-alt"></i>
+                </div>
+                <h4>Phone</h4>
+                <p>
+                    <a href="tel:+91-80-4567-8900">+91 80 4567 8900</a><br>
+                    <a href="tel:+91-9845-678-900">+91 9845 678 900</a>
+                </p>
+            </div>
+
+            <div class="contact-card">
+                <div class="contact-icon">
+                    <i class="fas fa-envelope"></i>
+                </div>
+                <h4>Email & Social</h4>
+                <p>
+                    <a href="mailto:contact@jitrestaurant.com">contact@jitrestaurant.com</a><br>
+                    <a href="mailto:support@jitrestaurant.com">support@jitrestaurant.com</a>
+                </p>
+                <div class="social-links">
+                    <a href="https://linkedin.com/company/jit-restaurant" target="_blank" class="social-link">
+                        <i class="fab fa-linkedin"></i>
+                    </a>
+                    <a href="https://twitter.com/jitrestaurant" target="_blank" class="social-link">
+                        <i class="fab fa-twitter"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="follow-section">
+        <h3>Follow Us</h3>
+        <p class="follow-text">Stay connected with us on social media for updates, special offers, and behind-the-scenes content</p>
+        <div class="social-grid">
+            <a href="https://www.youtube.com/@JITRestaurant" target="_blank" class="social-card youtube">
+                <div class="social-icon">
+                    <i class="fab fa-youtube"></i>
+                </div>
+                <h4>YouTube</h4>
+                <p>Watch our cooking tutorials and restaurant stories</p>
+            </a>
+
+            <a href="https://www.instagram.com/jitrestaurant" target="_blank" class="social-card instagram">
+                <div class="social-icon">
+                    <i class="fab fa-instagram"></i>
+                </div>
+                <h4>Instagram</h4>
+                <p>Follow our food journey and daily updates</p>
+            </a>
+
+            <a href="https://www.facebook.com/JITRestaurant" target="_blank" class="social-card facebook">
+                <div class="social-icon">
+                    <i class="fab fa-facebook"></i>
+                </div>
+                <h4>Facebook</h4>
+                <p>Join our community and share your experiences</p>
+            </a>
+        </div>
+    </section>
+
+    <!-- Chatbot Button -->
+    <button class="chatbot-button" id="chatbotButton">
+        <i class="fas fa-robot"></i>
+    </button>
+
+    <!-- Chatbot Container -->
+    <div class="chatbot-container" id="chatbotContainer">
+        <div class="chatbot-header">
+            <h3>AI Assistant</h3>
+            <button class="close-chat" id="closeChat">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="chat-messages" id="chatMessages">
+            <div class="message bot-message">
+                Hello! I'm your AI assistant. How can I help you today?
+            </div>
+        </div>
+        <div class="chat-input">
+            <input type="text" id="messageInput" placeholder="Type your message..." />
+            <button class="send-message" id="sendMessage">
+                <i class="fas fa-paper-plane"></i>
+            </button>
+        </div>
+    </div>
+
+    {% if error %}
+    <div class="error-message">
+        {{ error }}
+    </div>
+    {% endif %}
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="flash-message {{ category }}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const chatbotButton = document.getElementById('chatbotButton');
+            const chatbotContainer = document.getElementById('chatbotContainer');
+            const closeChat = document.getElementById('closeChat');
+            const messageInput = document.getElementById('messageInput');
+            const sendMessage = document.getElementById('sendMessage');
+            const chatMessages = document.getElementById('chatMessages');
+
+            // Toggle chatbot
+            chatbotButton.addEventListener('click', () => {
+                chatbotContainer.classList.add('active');
+                messageInput.focus();
+            });
+
+            closeChat.addEventListener('click', () => {
+                chatbotContainer.classList.remove('active');
+            });
+
+            // Send message function
+            async function sendUserMessage() {
+                const message = messageInput.value.trim();
+                if (message) {
+                    // Add user message
+                    const userMessageDiv = document.createElement('div');
+                    userMessageDiv.className = 'message user-message';
+                    userMessageDiv.textContent = message;
+                    chatMessages.appendChild(userMessageDiv);
+
+                    // Clear input
+                    messageInput.value = '';
+
+                    // Show typing indicator
+                    const typingDiv = document.createElement('div');
+                    typingDiv.className = 'message bot-message';
+                    typingDiv.textContent = 'Typing...';
+                    chatMessages.appendChild(typingDiv);
+
+                    // Auto scroll to bottom
+                    chatMessages.scrollTop = chatMessages.scrollHeight;
+
+                    try {
+                        // Send message to backend
+                        const response = await fetch('/chatbot', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({ message: message })
+                        });
+
+                        const data = await response.json();
+
+                        // Remove typing indicator
+                        chatMessages.removeChild(typingDiv);
+
+                        // Add bot response
+                        const botMessageDiv = document.createElement('div');
+                        botMessageDiv.className = 'message bot-message';
+                        
+                        // Handle multiline responses
+                        const formattedResponse = data.response.replace(/\n/g, '<br>');
+                        botMessageDiv.innerHTML = formattedResponse;
+                        
+                        chatMessages.appendChild(botMessageDiv);
+                    } catch (error) {
+                        // Remove typing indicator
+                        chatMessages.removeChild(typingDiv);
+
+                        // Show error message
+                        const errorDiv = document.createElement('div');
+                        errorDiv.className = 'message bot-message';
+                        errorDiv.textContent = 'Sorry, I encountered an error. Please try again.';
+                        chatMessages.appendChild(errorDiv);
+                    }
+
+                    // Auto scroll to bottom
+                    chatMessages.scrollTop = chatMessages.scrollHeight;
+                }
+            }
+
+            // Send message on button click
+            sendMessage.addEventListener('click', sendUserMessage);
+
+            // Send message on Enter key
+            messageInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    sendUserMessage();
+                }
+            });
+        });
+    </script>
+</body>
+</html>

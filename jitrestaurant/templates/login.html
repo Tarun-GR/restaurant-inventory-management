@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>JIT Restaurant - Login</title>
+	<link href="https://fonts.googleapis.com/css2?family=Jost:wght@500&display=swap" rel="stylesheet">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+	<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+	<style>
+		.flash-message {
+			position: fixed;
+			top: 20px;
+			right: 20px;
+			padding: 15px 25px;
+			border-radius: 5px;
+			color: white;
+			z-index: 1000;
+			animation: slideIn 0.5s ease-out;
+		}
+
+		.flash-message.success {
+			background-color: #4CAF50;
+		}
+
+		.flash-message.error {
+			background-color: #f44336;
+		}
+
+		@keyframes slideIn {
+			from {
+				transform: translateX(100%);
+				opacity: 0;
+			}
+			to {
+				transform: translateX(0);
+				opacity: 1;
+			}
+		}
+
+		.login .password-container {
+			position: relative;
+			width: 60%;
+			margin: 20px auto;
+		}
+
+		.login .password-container input {
+			width: 100%;
+			height: 10px;
+			background: #e0dede;
+			justify-content: center;
+			display: flex;
+			margin: 0;
+			padding: 12px;
+			padding-right: 40px;
+			border: none;
+			outline: none;
+			border-radius: 5px;
+			color: #222;
+			font-size: 1em;
+		}
+
+		.signup .password-container {
+			position: relative;
+			width: 60%;
+			margin: 20px auto;
+		}
+
+		.signup .password-container input {
+			width: 100%;
+			height: 10px;
+			background: #e0dede;
+			justify-content: center;
+			display: flex;
+			margin: 0;
+			padding: 12px;
+			padding-right: 40px;
+			border: none;
+			outline: none;
+			border-radius: 5px;
+			color: #222;
+			font-size: 1em;
+		}
+
+		.signup .password-container input:focus {
+			outline: none;
+			border-color: #573b8a;
+			background: #e0dede;
+		}
+
+		.toggle-password {
+			position: absolute;
+			right: 10px;
+			top: 50%;
+			transform: translateY(-50%);
+			cursor: pointer;
+			color: #573b8a;
+		}
+
+		.toggle-password:hover {
+			color: #6d44b8;
+		}
+
+		.signup .toggle-password {
+			color: #573b8a;
+		}
+	</style>
+</head>
+<body>
+	<div class="main">
+		<input type="checkbox" id="chk" aria-hidden="true">
+
+		<div class="signup">
+			<form method="POST" action="{{ url_for('signup') }}">
+				<label for="chk" aria-hidden="true">Sign up</label>
+				<input type="text" name="txt" placeholder="User name" required>
+				<input type="email" name="email" placeholder="Email" required>
+				<input type="number" name="broj" placeholder="Phone Number" required>
+				<div class="password-container">
+					<input type="password" name="pswd" placeholder="Password" required>
+					<i class="fas fa-eye-slash toggle-password"></i>
+				</div>
+				<button type="submit">Sign up</button>
+			</form>
+		</div>
+
+		<div class="login">
+			<form method="POST" action="{{ url_for('login') }}">
+				<label for="chk" aria-hidden="true">Login</label>
+				<input type="email" name="email" placeholder="Email" required>
+				<div class="password-container">
+					<input type="password" name="pswd" placeholder="Password" required>
+					<i class="fas fa-eye-slash toggle-password"></i>
+				</div>
+				<button type="submit">Login</button>
+			</form>
+		</div>
+	</div>
+
+	{% with messages = get_flashed_messages(with_categories=true) %}
+		{% if messages %}
+			{% for category, message in messages %}
+				<div class="flash-message {{ category }}">{{ message }}</div>
+			{% endfor %}
+		{% endif %}
+	{% endwith %}
+
+	<script>
+		document.querySelectorAll('.toggle-password').forEach(icon => {
+			icon.addEventListener('click', () => {
+				const input = icon.previousElementSibling;
+				if (input.type === 'password') {
+					input.type = 'text';
+					icon.classList.remove('fa-eye-slash');
+					icon.classList.add('fa-eye');
+				} else {
+					input.type = 'password';
+					icon.classList.remove('fa-eye');
+					icon.classList.add('fa-eye-slash');
+				}
+			});
+		});
+	</script>
+</body>
+</html>

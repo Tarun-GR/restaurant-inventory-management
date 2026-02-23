@@ -1,0 +1,689 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Staff Dashboard - JIT Restaurant</title>
+    <!-- Debug output -->
+    <script type="text/javascript">
+        window.onload = function() {
+            var staffData = {
+                staffName: {{ staff_name|tojson|default('null')|safe }},
+                customerOrders: {{ customer_orders|tojson|default('[]')|safe }},
+                dishes: {{ dishes|tojson|default('[]')|safe }},
+                orderDetails: {{ order_details|tojson|default('[]')|safe }}
+            };
+            console.log("Staff Dashboard Data:", staffData);
+        };
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --dark-bg: #121212;
+            --dark-card: rgba(30, 30, 30, 0.85);
+            --dark-surface: rgba(45, 45, 45, 0.9);
+            --text-primary: #ffffff;
+            --text-secondary: #e0e0e0;
+            --accent-color: #4CAF50;
+            --accent-dark: #388E3C;
+            --success-color: #4CAF50;
+            --warning-color: #FFC107;
+            --danger-color: #f44336;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            background-color: var(--dark-bg);
+            color: var(--text-primary);
+            min-height: 100vh;
+            background-image: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), 
+                url("{{ url_for('static', filename='images/beachside.jpg') }}");
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+        }
+
+        .staff-header {
+            text-align: center;
+            padding: 8rem 2rem 4rem;
+            background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.3));
+        }
+
+        .staff-header h1 {
+            font-size: 2.5em;
+            margin-bottom: 1rem;
+            color: var(--text-primary);
+        }
+
+        .staff-header p {
+            color: var(--text-secondary);
+            font-size: 1.1em;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .table-section {
+            padding: 2rem;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .table-container {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .section-title {
+            font-size: 1.8em;
+            color: var(--text-primary);
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .section-title i {
+            color: var(--accent-color);
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .data-table th {
+            background: var(--accent-color);
+            color: white;
+            padding: 1rem;
+            text-align: left;
+            font-weight: 500;
+        }
+
+        .data-table td {
+            padding: 1rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--text-secondary);
+        }
+
+        .data-table tbody tr:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .table-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .search-box {
+            padding: 0.5rem 1rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--text-primary);
+            outline: none;
+        }
+
+        .search-box:focus {
+            border-color: var(--accent-color);
+        }
+
+        .add-button {
+            padding: 0.5rem 1rem;
+            background: var(--accent-color);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .add-button:hover {
+            background: var(--accent-dark);
+            transform: translateY(-2px);
+        }
+
+        .status {
+            padding: 0.25rem 0.75rem;
+            border-radius: 15px;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        .status-pending {
+            background: var(--warning-color);
+            color: #000;
+        }
+
+        .status-completed {
+            background: var(--success-color);
+            color: white;
+        }
+
+        .status-cancelled {
+            background: var(--danger-color);
+            color: white;
+        }
+
+        .logout-btn {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 10px 20px;
+            background: var(--accent-color);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .logout-btn:hover {
+            background: var(--accent-dark);
+            transform: translateY(-2px);
+        }
+
+        .no-data {
+            text-align: center;
+            padding: 2rem;
+            color: var(--text-secondary);
+            font-style: italic;
+        }
+
+        .error-message {
+            background: var(--danger-color);
+            color: white;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+
+        .cart-section {
+            position: fixed;
+            right: 20px;
+            top: 80px;
+            width: 300px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 1.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            max-height: calc(100vh - 100px);
+            overflow-y: auto;
+        }
+
+        .cart-title {
+            font-size: 1.5em;
+            color: var(--text-primary);
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .cart-items {
+            margin-bottom: 1rem;
+        }
+
+        .cart-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .cart-item-details {
+            flex-grow: 1;
+        }
+
+        .cart-item-name {
+            color: var(--text-primary);
+            font-size: 0.9em;
+        }
+
+        .cart-item-price {
+            color: var(--text-secondary);
+            font-size: 0.8em;
+        }
+
+        .cart-item-quantity {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .quantity-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            color: var(--text-primary);
+            width: 24px;
+            height: 24px;
+            border-radius: 4px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .quantity-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .cart-total {
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            justify-content: space-between;
+            color: var(--text-primary);
+            font-weight: 500;
+        }
+
+        .checkout-btn {
+            width: 100%;
+            padding: 1rem;
+            background: var(--accent-color);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            margin-top: 1rem;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .checkout-btn:hover {
+            background: var(--accent-dark);
+            transform: translateY(-2px);
+        }
+
+        .add-to-cart-btn {
+            padding: 0.5rem 1rem;
+            background: var(--accent-color);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .add-to-cart-btn:hover {
+            background: var(--accent-dark);
+            transform: translateY(-2px);
+        }
+
+        .main-content {
+            margin-right: 320px; /* Make space for cart */
+        }
+
+        @media (max-width: 1200px) {
+            .cart-section {
+                position: static;
+                width: 100%;
+                margin-top: 2rem;
+            }
+
+            .main-content {
+                margin-right: 0;
+            }
+        }
+
+        .status-select {
+            padding: 0.25rem 0.75rem;
+            border-radius: 15px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            border: none;
+            background: var(--accent-color);
+            color: white;
+            cursor: pointer;
+            outline: none;
+        }
+
+        .status-select option {
+            background: var(--dark-card);
+            color: var(--text-primary);
+        }
+    </style>
+</head>
+<body>
+    <a href="{{ url_for('logout') }}" class="logout-btn">
+        <i class="fas fa-sign-out-alt"></i>
+        Logout
+    </a>
+
+    <header class="staff-header">
+        <h1>Welcome, {{ staff_name }}</h1>
+        <p>Manage orders and customer information</p>
+    </header>
+
+    {% if error %}
+    <div class="error-message">
+        {{ error }}
+    </div>
+    {% endif %}
+
+    <div class="main-content">
+        <section class="table-section">
+            <!-- Customer Orders -->
+            <div class="table-container">
+                <div class="table-actions">
+                    <h2 class="section-title">
+                        <i class="fas fa-shopping-cart"></i>
+                        Customer Orders
+                    </h2>
+                    <div>
+                        <input type="text" class="search-box" placeholder="Search orders...">
+                    </div>
+                </div>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Order ID</th>
+                            <th>Customer Name</th>
+                            <th>Order Date</th>
+                            <th>Total Amount</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% if customer_orders %}
+                            {% for order in customer_orders %}
+                            <tr>
+                                <td>#{{ order.Order_ID }}</td>
+                                <td>{{ order.Customer_Name if order.Customer_Name else 'N/A' }}</td>
+                                <td>{{ order.Order_Date }}</td>
+                                <td>₹{{ "%.2f"|format(order.Total_Amount) if order.Total_Amount else '0.00' }}</td>
+                                <td>
+                                    <select class="status-select" onchange="changeStatus({{ order.Order_ID }}, this.value)">
+                                        {% for status in ['Pending', 'Preparing', 'Ready', 'Served', 'Cancelled'] %}
+                                            <option value="{{ status }}" {% if order.Status == status %}selected{% endif %}>{{ status }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        {% else %}
+                            <tr>
+                                <td colspan="5" class="no-data">No orders found</td>
+                            </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Menu Items with Add to Cart buttons -->
+            <div class="table-container">
+                <div class="table-actions">
+                    <h2 class="section-title">
+                        <i class="fas fa-utensils"></i>
+                        Menu Items
+                    </h2>
+                    <div>
+                        <input type="text" class="search-box" placeholder="Search dishes...">
+                    </div>
+                </div>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Dish ID</th>
+                            <th>Name</th>
+                            <th>Price</th>
+                            <th>Category</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% if dishes %}
+                            {% for dish in dishes %}
+                            <tr>
+                                <td>#{{ dish.ID }}</td>
+                                <td>{{ dish.Name }}</td>
+                                <td>₹{{ "%.2f"|format(dish.Price) }}</td>
+                                <td>{{ dish.Category if dish.Category else 'N/A' }}</td>
+                                <td>
+                                    <button class="add-to-cart-btn" onclick="addToCart({{ dish.ID }}, '{{ dish.Name }}', {{ dish.Price }})">
+                                        <i class="fas fa-cart-plus"></i> Add
+                                    </button>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        {% else %}
+                            <tr>
+                                <td colspan="5" class="no-data">No dishes found</td>
+                            </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Order Details -->
+            <div class="table-container">
+                <div class="table-actions">
+                    <h2 class="section-title">
+                        <i class="fas fa-receipt"></i>
+                        Order Details
+                    </h2>
+                    <div>
+                        <input type="text" class="search-box" placeholder="Search order details...">
+                    </div>
+                </div>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Order ID</th>
+                            <th>Item</th>
+                            <th>Quantity</th>
+                            <th>Unit Price</th>
+                            <th>Subtotal</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% if order_details %}
+                            {% for detail in order_details %}
+                            <tr>
+                                <td>#{{ detail.Order_ID }}</td>
+                                <td>{{ detail.Item_Name if detail.Item_Name else 'N/A' }}</td>
+                                <td>{{ detail.Quantity if detail.Quantity else '0' }}</td>
+                                <td>₹{{ "%.2f"|format(detail.Unit_Price) if detail.Unit_Price else '0.00' }}</td>
+                                <td>₹{{ "%.2f"|format(detail.Subtotal) if detail.Subtotal else '0.00' }}</td>
+                            </tr>
+                            {% endfor %}
+                        {% else %}
+                            <tr>
+                                <td colspan="5" class="no-data">No order details found</td>
+                            </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </div>
+
+    <!-- Shopping Cart -->
+    <div class="cart-section">
+        <h2 class="cart-title">
+            <i class="fas fa-shopping-cart"></i>
+            Shopping Cart
+        </h2>
+        <div class="cart-items" id="cartItems">
+            <!-- Cart items will be dynamically added here -->
+        </div>
+        <div class="cart-total">
+            <span>Total:</span>
+            <span id="cartTotal">₹0.00</span>
+        </div>
+        <button class="checkout-btn" onclick="checkout()">
+            <i class="fas fa-cash-register"></i>
+            Checkout
+        </button>
+    </div>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="flash-message {{ category }}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    <script>
+        let cart = [];
+
+        function addToCart(id, name, price) {
+            const existingItem = cart.find(item => item.id === id);
+            if (existingItem) {
+                existingItem.quantity += 1;
+            } else {
+                cart.push({ id, name, price, quantity: 1 });
+            }
+            updateCartDisplay();
+        }
+
+        function updateQuantity(id, change) {
+            const item = cart.find(item => item.id === id);
+            if (item) {
+                item.quantity += change;
+                if (item.quantity <= 0) {
+                    cart = cart.filter(i => i.id !== id);
+                }
+            }
+            updateCartDisplay();
+        }
+
+        function updateCartDisplay() {
+            const cartItems = document.getElementById('cartItems');
+            const cartTotal = document.getElementById('cartTotal');
+            let total = 0;
+
+            cartItems.innerHTML = cart.map(item => {
+                const itemTotal = item.price * item.quantity;
+                total += itemTotal;
+                return `
+                    <div class="cart-item">
+                        <div class="cart-item-details">
+                            <div class="cart-item-name">${item.name}</div>
+                            <div class="cart-item-price">₹${item.price.toFixed(2)} × ${item.quantity}</div>
+                        </div>
+                        <div class="cart-item-quantity">
+                            <button class="quantity-btn" onclick="updateQuantity(${item.id}, -1)">-</button>
+                            <span>${item.quantity}</span>
+                            <button class="quantity-btn" onclick="updateQuantity(${item.id}, 1)">+</button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            cartTotal.textContent = `₹${total.toFixed(2)}`;
+        }
+
+        function checkout() {
+            if (cart.length === 0) {
+                alert('Please add items to cart before checking out.');
+                return;
+            }
+
+            let customerName = '';
+            while (!customerName || customerName.trim() === '') {
+                customerName = prompt('Please enter customer name:');
+                if (customerName === null) {  // User clicked Cancel
+                    return;
+                }
+                if (!customerName || customerName.trim() === '') {
+                    alert('Customer name is required. Please try again.');
+                }
+            }
+
+            // Get current date in MySQL format
+            const currentDate = new Date().toISOString().slice(0, 19).replace('T', ' ');
+
+            // Calculate total
+            const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+
+            // Prepare order data
+            const orderData = {
+                customer_name: customerName.trim(),
+                order_date: currentDate,
+                status: 'Order Placed',
+                items: cart.map(item => ({
+                    id: item.id,
+                    name: item.name,
+                    quantity: item.quantity,
+                    price: item.price
+                })),
+                total: total
+            };
+
+            console.log('Sending order data:', orderData);
+
+            // Send order to server
+            fetch('/create_order', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(orderData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Order placed successfully!');
+                    cart = [];
+                    updateCartDisplay();
+                    location.reload();
+                } else {
+                    console.error('Server error:', data.error);
+                    alert('Error placing order: ' + data.error);
+                }
+            })
+            .catch(error => {
+                console.error('Network error:', error);
+                alert('Error placing order. Please try again.');
+            });
+        }
+
+        function changeStatus(orderId, newStatus) {
+            fetch('/update_order_status', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ order_id: orderId, new_status: newStatus })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    location.reload();
+                } else {
+                    alert('Error updating status: ' + data.error);
+                }
+            })
+            .catch(err => alert('Network error: ' + err));
+        }
+    </script>
+</body>
+</html> 

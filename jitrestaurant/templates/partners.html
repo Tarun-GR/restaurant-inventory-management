@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Our Partners - JIT Restaurant</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+    <style>
+        :root {
+            --dark-bg: #121212;
+            --dark-card: rgba(30, 30, 30, 0.85);
+            --dark-surface: rgba(45, 45, 45, 0.9);
+            --text-primary: #ffffff;
+            --text-secondary: #e0e0e0;
+            --accent-color: #FF7043;
+            --accent-dark: #4CAF50;
+            --accent-light: #81C784;
+        }
+
+        body {
+            background-color: var(--dark-bg);
+            color: var(--text-primary);
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            background-image: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)),                url("https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80");
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+        }
+
+        .partners-header {
+            text-align: center;
+            padding: 4rem 2rem;
+            background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.3));
+        }
+
+        .partners-header h1 {
+            font-size: 3.5em;
+            margin-bottom: 1rem;
+            color: var(--text-primary);
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+
+        .partners-header p {
+            font-size: 1.2em;
+            color: var(--text-secondary);
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .partners-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            padding: 2rem;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .partner-card {
+            background: var(--dark-card);
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 4px 25px rgba(0,0,0,0.4);
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+        }
+
+        .partner-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 8px 30px rgba(0,0,0,0.6);
+            border-color: var(--accent-color);
+        }
+
+        .partner-image {
+            height: 250px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .partner-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+        }
+
+        .partner-card:hover .partner-image img {
+            transform: scale(1.1);
+        }
+
+        .partner-info {
+            padding: 1.5rem;
+        }
+
+        .partner-info h3 {
+            font-size: 1.8em;
+            margin: 0 0 0.5rem 0;
+            color: var(--text-primary);
+        }
+
+        .partner-info p {
+            color: var(--text-secondary);
+            margin: 0;
+            line-height: 1.6;
+        }
+
+        .partner-location {
+            display: flex;
+            align-items: center;
+            margin-top: 1rem;
+            color: var(--accent-light);
+        }
+
+        .partner-location i {
+            margin-right: 0.5rem;
+        }
+
+        .partner-rating {
+            display: flex;
+            align-items: center;
+            margin-top: 0.5rem;
+            color: #FFD700;
+        }
+
+        .partner-rating i {
+            margin-right: 0.2rem;
+        }
+
+        @media (max-width: 768px) {
+            .partners-header h1 {
+                font-size: 2.5em;
+            }
+            
+            .partners-grid {
+                grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+                padding: 1rem;
+            }
+            
+            .partner-image {
+                height: 200px;
+            }
+        }
+
+        nav {
+            background-color: rgba(30, 30, 30, 0.8);
+            backdrop-filter: blur(10px);
+            padding: 1rem 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .nav-flex-row {
+            list-style: none;
+            display: flex;
+            gap: 2rem;
+            margin: 0;
+            padding: 0;
+            justify-content: center;
+        }
+
+        .nav-flex-row li a {
+            color: var(--text-primary);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s ease;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+        }
+
+        .nav-flex-row li a:hover {
+            color: var(--accent-color);
+            background-color: rgba(255,255,255,0.1);
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <ul class="nav-flex-row">
+            <li><a href="{{ url_for('dashboard') }}">Home</a></li>
+            <li><a href="{{ url_for('partners') }}" class="active">Partners</a></li>
+            <li><a href="{{ url_for('subscription') }}">Subscription</a></li>
+            <li><a href="{{ url_for('restaurant_login') }}">Restaurant Login</a></li>
+            <li><a href="{{ url_for('logout') }}">Logout</a></li>
+        </ul>
+    </nav>
+
+    <div class="partners-header">
+        <h1>Our Trusted Partners</h1>
+        <p>Discover our network of premium hotels and restaurants that trust JIT Restaurant Management Systems</p>
+    </div>
+
+    <div class="partners-grid">
+        <div class="partner-card">
+            <div class="partner-image">
+                <img src="{{ url_for('static', filename='images/grand-plaza.jpg') }}" alt="The Grand Plaza">
+            </div>
+            <div class="partner-info">
+                <h3>The Grand Plaza</h3>
+                <p>Luxury hotel with world-class dining experience</p>
+                <div class="partner-location">
+                    <i class="fas fa-map-marker-alt"></i>
+                    <span>Mumbai, India</span>
+                </div>
+                <div class="partner-rating">
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="partner-card">
+            <div class="partner-image">
+                <img src="{{ url_for('static', filename='images/royal-crown.jpg') }}" alt="Royal Crown Hotel">
+            </div>
+            <div class="partner-info">
+                <h3>Royal Crown Hotel</h3>
+                <p>Heritage hotel with traditional cuisine</p>
+                <div class="partner-location">
+                    <i class="fas fa-map-marker-alt"></i>
+                    <span>Delhi, India</span>
+                </div>
+                <div class="partner-rating">
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="partner-card">
+            <div class="partner-image">
+                <img src="{{ url_for('static', filename='images/marina-bay.jpg') }}" alt="Marina Bay Hotel">
+            </div>
+            <div class="partner-info">
+                <h3>Marina Bay Hotel</h3>
+                <p>Seaside luxury with gourmet dining</p>
+                <div class="partner-location">
+                    <i class="fas fa-map-marker-alt"></i>
+                    <span>Goa, India</span>
+                </div>
+                <div class="partner-rating">
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star-half-alt"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="partner-card">
+            <div class="partner-image">
+                <img src="{{ url_for('static', filename='images/taj-palace.jpg') }}" alt="Taj Palace">
+            </div>
+            <div class="partner-info">
+                <h3>Taj Palace</h3>
+                <p>Historic luxury with royal dining experience</p>
+                <div class="partner-location">
+                    <i class="fas fa-map-marker-alt"></i>
+                    <span>Jaipur, India</span>
+                </div>
+                <div class="partner-rating">
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="partner-card">
+            <div class="partner-image">
+                <img src="{{ url_for('static', filename='images/golden-lotus.jpg') }}" alt="Golden Lotus">
+            </div>
+            <div class="partner-info">
+                <h3>Golden Lotus</h3>
+                <p>Contemporary Asian fusion dining</p>
+                <div class="partner-location">
+                    <i class="fas fa-map-marker-alt"></i>
+                    <span>Bangalore, India</span>
+                </div>
+                <div class="partner-rating">
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="partner-card">
+            <div class="partner-image">
+                <img src="{{ url_for('static', filename='images/spice-garden.jpg') }}" alt="Spice Garden">
+            </div>
+            <div class="partner-info">
+                <h3>Spice Garden</h3>
+                <p>Authentic Indian cuisine experience</p>
+                <div class="partner-location">
+                    <i class="fas fa-map-marker-alt"></i>
+                    <span>Chennai, India</span>
+                </div>
+                <div class="partner-rating">
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star-half-alt"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="partner-card">
+            <div class="partner-image">
+                <img src="{{ url_for('static', filename='images/mountain-retreat.jpg') }}" alt="Mountain Retreat">
+            </div>
+            <div class="partner-info">
+                <h3>Mountain Retreat</h3>
+                <p>Scenic mountain resort with local flavors</p>
+                <div class="partner-location">
+                    <i class="fas fa-map-marker-alt"></i>
+                    <span>Shimla, India</span>
+                </div>
+                <div class="partner-rating">
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="partner-card">
+            <div class="partner-image">
+                <img src="{{ url_for('static', filename='images/desert-oasis.jpg') }}" alt="Desert Oasis">
+            </div>
+            <div class="partner-info">
+                <h3>Desert Oasis</h3>
+                <p>Luxury desert resort with traditional cuisine</p>
+                <div class="partner-location">
+                    <i class="fas fa-map-marker-alt"></i>
+                    <span>Jaisalmer, India</span>
+                </div>
+                <div class="partner-rating">
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star-half-alt"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html> 
